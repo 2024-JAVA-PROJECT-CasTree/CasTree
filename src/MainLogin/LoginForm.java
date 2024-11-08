@@ -128,12 +128,12 @@ public class LoginForm extends JFrame {
                             JOptionPane.INFORMATION_MESSAGE);
 
                     // 로그인 성공 후의 동작 추가 (예: 다음 화면으로 이동)
-//                    InformationForm infoForm = new InformationForm(LoginForm.this);
-//                    infoForm.setTaCheck(users.getUser(id).toString());
-//                    setVisible(false);
-//                    infoForm.setVisible(true);
-//                    tfId.setText("");
-//                    tfPw.setText("");
+                    InformationForm infoForm = new InformationForm(LoginForm.this);
+                    infoForm.setTaCheck(users.getUser(id).toString());
+                    setVisible(false);
+                    infoForm.setVisible(true);
+                    tfId.setText("");
+                    tfPw.setText("");
 
                 } else {
                     // 존재하지 않는 아이디일 경우
@@ -143,6 +143,13 @@ public class LoginForm extends JFrame {
                             "로그인 오류",
                             JOptionPane.ERROR_MESSAGE);
                 }
+            }
+        });
+
+        btnJoin.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new JoinForm((LoginForm.this));
             }
         });
 
