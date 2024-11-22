@@ -1,5 +1,7 @@
 package MainLogin;
 
+import com.mysql.cj.log.LogFactory;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -9,15 +11,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class LoginForm extends JFrame {
-
     private UsersDS users;
-
-    private JLabel lblId;
-    private JLabel lblPw;
+    private JLabel lblId, lblPw;
     private JTextField tfId;
     private JPasswordField tfPw;
-    private JButton btnLogin;
-    private JButton btnJoin;
+    private JButton btnLogin,btnJoin;
 
     public LoginForm() {
         users = new UsersDS();
@@ -32,17 +30,17 @@ public class LoginForm extends JFrame {
         int tfSize = 10;
         Dimension btnSize = new Dimension(100, 25);
 
-        lblId = new JLabel("ID");
+        lblId = new JLabel("아이디");
         lblId.setPreferredSize(lblSize);
-        lblPw = new JLabel("Password");
+        lblPw = new JLabel("비밀번호");
         lblPw.setPreferredSize(lblSize);
 
         tfId = new JTextField(tfSize);
         tfPw = new JPasswordField(tfSize);
 
-        btnLogin = new JButton("Login");
+        btnLogin = new JButton("로그인");
         btnLogin.setPreferredSize(btnSize);
-        btnJoin = new JButton("Join");
+        btnJoin = new JButton("회원가입");
         btnJoin.setPreferredSize(btnSize);
     }
 
@@ -82,26 +80,20 @@ public class LoginForm extends JFrame {
     }
 
     public void addListeners() {
-        btnLogin.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 아이디 확인
-                String id = tfId.getText();
-                if (id.isEmpty()) {
-                    JOptionPane.showMessageDialog(
-                            LoginForm.this,
-                            "아이디를 입력하세요.",
-                            "로그인 오류",
-                            JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
+        btnLogin.addActionListener(e-> {
+            String id = tfId.getText();
+            if(id.isEmpty()){
+                JOptionPane.showMessageDialog(LoginForm.this,
+                        "아이디를 입력하세요",
+                        "로그인 오류", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            // 존재하는 아이디일 경우
+            if (users.contains(new Users(id))) {
+                String password = String.valueOf(tfPw.getPassword());
 
-                // 존재하는 아이디일 경우
-                if (users.contains(new Users(id))) {
-                    String password = String.valueOf(tfPw.getPassword());
-
-                    // 비밀번호 입력 확인
-                    if (password.isEmpty()) {
+                // 비밀번호 입력 확인
+                if (password.isEmpty()) {
                         JOptionPane.showMessageDialog(
                                 LoginForm.this,
                                 "비밀번호를 입력하세요.",
@@ -110,31 +102,30 @@ public class LoginForm extends JFrame {
                         return;
                     }
 
-                    // 비밀번호 확인
-                    if (!users.getUser(id).getPw().equals(password)) {
-                        JOptionPane.showMessageDialog(
-                                LoginForm.this,
-                                "비밀번호가 일치하지 않습니다.",
-                                "로그인 오류",
-                                JOptionPane.ERROR_MESSAGE);
+                // 비밀번호 확인
+                if (!users.getUser(id).getPw().equals(password)) {
+                    JOptionPane.showMessageDialog(
+                            LoginForm.this,
+                            "비밀번호가 일치하지 않습니다.",
+                            "로그인 오류",
+                            JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    // 로그인 성공 시
-                    JOptionPane.showMessageDialog(
-                            LoginForm.this,
-                            "로그인 성공!",
-                            "로그인 성공",
-                            JOptionPane.INFORMATION_MESSAGE);
+                // 로그인 성공 시
+                JOptionPane.showMessageDialog(
+                        LoginForm.this,
+                        "로그인 성공!",
+                        "로그인 성공",
+                        JOptionPane.INFORMATION_MESSAGE);
 
-                    // 로그인 성공 후의 동작 추가 (예: 다음 화면으로 이동)
-                    InformationForm infoForm = new InformationForm(LoginForm.this);
-                    infoForm.setTaCheck(users.getUser(id).toString());
-                    setVisible(false);
-                    infoForm.setVisible(true);
+                    // MainScreen으로 이동
+                    Users loggedInUser = users.getUser(id);
+                    MainScreen mainScreen = new MainScreen(loggedInUser);
+                    mainScreen.setVisible(true);
+                    dispose();
                     tfId.setText("");
                     tfPw.setText("");
-
                 } else {
                     // 존재하지 않는 아이디일 경우
                     JOptionPane.showMessageDialog(
@@ -143,28 +134,19 @@ public class LoginForm extends JFrame {
                             "로그인 오류",
                             JOptionPane.ERROR_MESSAGE);
                 }
-            }
         });
 
-        btnJoin.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new JoinForm((LoginForm.this));
-            }
-        });
+        btnJoin.addActionListener(e-> new JoinForm(LoginForm.this));
 
-        // 윈도우 닫기 이벤트
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent we) {
-                int choice = JOptionPane.showConfirmDialog(
-                        LoginForm.this,
+                int choice = JOptionPane.showConfirmDialog(LoginForm.this,
                         "프로그램을 종료하시겠습니까?",
                         "종료 확인",
                         JOptionPane.OK_CANCEL_OPTION,
-                        JOptionPane.WARNING_MESSAGE
-                );
-                if (choice == JOptionPane.OK_OPTION) {
+                        JOptionPane.WARNING_MESSAGE);
+                if (choice == JOptionPane.OK_OPTION){
                     System.exit(0);
                 }
             }
