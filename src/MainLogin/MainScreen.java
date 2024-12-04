@@ -12,16 +12,13 @@ public class MainScreen extends JFrame {
         JPanel mainP = new JPanel(new BorderLayout());
         getContentPane().add(mainP);
 
-        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+//        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        // **상단바 구성 (topBar)**
+        JPanel topBar = new JPanel(new BorderLayout());
 
-        JPanel BtnP = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel BtnP = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         BtnP.setOpaque(false);
         BtnP.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20));
-
-        // 로그인한 사용자 정보 표시
-        JLabel userInfoLabel = new JLabel("Welcome, " + loggedInUser.getName());
-        userInfoLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        BtnP.add(userInfoLabel);
 
         // 로그아웃 버튼 추가
         JButton logoutBtn = createStyledBtn("Logout");
@@ -30,7 +27,7 @@ public class MainScreen extends JFrame {
 
         topBar.add(BtnP, BorderLayout.WEST);
 
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JTextField searchField = new JTextField(20);
         searchField.setFont(new Font("Arial", Font.PLAIN, 16));
 
@@ -42,6 +39,16 @@ public class MainScreen extends JFrame {
 
         topBar.add(searchPanel, BorderLayout.EAST);
         mainP.add(topBar, BorderLayout.NORTH);
+
+//        // 추가함
+//        JButton openCommentScreenButton = new JButton("댓글 쓰기");
+//        openCommentScreenButton.addActionListener(e -> {
+//            String selectedBookId = "book123";
+//            String selectedBookTitle = "테스트 책";
+//            new CommentScreen(selectedBookId, selectedBookTitle, loggedInUser);
+//        });
+//        mainP.add(openCommentScreenButton, BorderLayout.SOUTH);
+
 
         JPanel ImgP = new JPanel();
         ImageIcon LogoIcon = new ImageIcon(MainScreen.class.getResource("/img/logo.png"));
@@ -84,5 +91,7 @@ public class MainScreen extends JFrame {
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         return btn;
     }
+
+
 
 }

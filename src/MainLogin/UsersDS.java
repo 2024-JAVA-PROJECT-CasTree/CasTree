@@ -11,7 +11,7 @@ public class UsersDS {
     public void addUsers(Users user){
         String sql = "INSERT INTO userlist (ID, Name, Password, Retry) VALUES (?, ?, ?, ?)";
 
-        try(Connection conn = DBConnectionEx.getConnection();
+        try(Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)){
 
             pstmt.setString(1, user.getId());
@@ -29,8 +29,8 @@ public class UsersDS {
     // 아이디 중복 확인
     public boolean idOverlap(String id){
         String sql = "SELECT COUNT(*) FROM userlist WHERE ID = ?";
-        try(Connection conn = DBConnectionEx.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement(sql)){
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)){
 
             pstmt.setString(1,id);
             ResultSet rs = pstmt.executeQuery();
@@ -48,7 +48,7 @@ public class UsersDS {
     public void delmember(String id){
         String sql = "DELETE FROM userlist WHERE ID = ?";
 
-        try(Connection conn = DBConnectionEx.getConnection();
+        try(Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)){
 
             pstmt.setString(1, id);
@@ -62,7 +62,7 @@ public class UsersDS {
     // User정보 가져오기
     public Users getUser(String id){
             String sql = "SELECT * FROM userlist WHERE ID = ?";
-            try (Connection conn = DBConnectionEx.getConnection();
+            try (Connection conn = DBConnection.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
                 pstmt.setString(1, id);
