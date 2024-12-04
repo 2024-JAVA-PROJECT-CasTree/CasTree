@@ -6,12 +6,22 @@ public class Users {
     private String name;
 
     public Users(String id, String pw, String name){
-        setId(id);
-        setPw(pw);
-        setName(name);
+//        setId(id);
+//        setPw(pw);
+//        setName(name);
+        this.id = id;
+        this.pw = pw;
+        this.name = name;
     }
+
+    public Users(String id, String name){
+        this.id = id;
+        this.name = name;
+    }
+
+    // ID만 받는 생성자
     public Users(String id){
-        setId(id);
+        this.id = id;
     }
 
     public String getId() {
