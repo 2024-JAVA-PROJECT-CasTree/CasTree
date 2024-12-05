@@ -11,7 +11,6 @@ import java.net.URL;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import MainLogin.DetailBook;
 
 public class BookSearchApp extends JFrame {
     private JTextField searchField;
@@ -44,25 +43,26 @@ public class BookSearchApp extends JFrame {
     private void initComponents() {
         setLayout(new BorderLayout());
 
+        // Logo Panel
         logoPanel = new JPanel(new BorderLayout());
         logoPanel.setBackground(Color.WHITE);
-        // 이미지 경로 수정해야됨
         logoIcon = new ImageIcon(getClass().getResource("/img/logo.png"));
         logoButton = new JButton(logoIcon);
-        logoButton.setContentAreaFilled(false);  // 버튼 배경색 제거
-        logoButton.setBorder(BorderFactory.createEmptyBorder());  // 테두리 제거
-        logoButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));  // 커서 변경
+        logoButton.setContentAreaFilled(false);  // Remove background color
+        logoButton.setBorder(BorderFactory.createEmptyBorder());  // Remove border
         logoPanel.add(logoButton, BorderLayout.WEST);
-        add(logoPanel, BorderLayout.WEST);
+        add(logoPanel, BorderLayout.NORTH);
 
-        // 검색창 및 버튼 패널
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        // Search Panel
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         searchPanel.setBackground(Color.WHITE);
 
-        searchField = new JTextField("원하는 검색어를 입력하세요", 20);
+        searchField = new JTextField("원하는 검색어를 입력하세요", 48);
         searchField.setForeground(Color.GRAY);
-        searchField.setBackground(Color.LIGHT_GRAY);
-        searchField.setBorder(BorderFactory.createEmptyBorder());
+        searchField.setBackground(Color.WHITE);
+//        searchField.setBorder(BorderFactory.createEmptyBorder());
+        searchField.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        searchField.setPreferredSize(new Dimension(500, 30));
         searchField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -81,62 +81,23 @@ public class BookSearchApp extends JFrame {
             }
         });
 
-        searchButton = new JButton("검색");
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                searchBooks();
-            }
-        });
+        searchButton = new JButton("serch");
+        searchButton.addActionListener(e -> searchBooks());
+        searchButton.setPreferredSize(new Dimension(70, 30));
 
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
-        add(searchPanel, BorderLayout.WEST);
+        add(searchPanel, BorderLayout.NORTH);
 
-        // 결과 텍스트 영역
-        resultArea = new JEditorPane();
-        resultArea.setEditable(false);
-        resultArea.setBackground(Color.WHITE);
-        resultArea.setBorder(BorderFactory.createEmptyBorder());
-        JScrollPane scrollPane = new JScrollPane(resultArea);
+        // Main Panel
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(Color.WHITE);
 
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        // JScrollPane의 크기 조정
-        scrollPane.setPreferredSize(new Dimension(800, 600)); // 원하는 크기로 설정
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-
-        // 결과 패널 중앙 정렬
-//        JPanel centerPanel = new JPanel(new GridLayout(1,2,10,10));
-        JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-        centerPanel.setBackground(Color.WHITE);
-        centerPanel.add(scrollPane);
-
-//        add(centerPanel, BorderLayout.CENTER);
-
-        // Search button listener
-        searchButton.addActionListener(e -> {
-            String searchTerm = searchField.getText();
-            if (!searchTerm.isEmpty()) {
-                BookSearchApp bookSearchApp = new BookSearchApp(searchTerm);
-                bookSearchApp.setVisible(true);
-                dispose(); // 현재 MainScreen 창 닫기
-            } else {
-                JOptionPane.showMessageDialog(this, "Please enter a search term.");
-            }
-        });
-
-        // 검색 패널에 검색 필드와 버튼 추가
-        searchPanel.add(searchField);
-        searchPanel.add(searchButton);
-
-        centerPanel.add(scrollPane);
-
-        // 책 표지
+        // Book Cover (left side)
         coverLabel = new JLabel();
         coverLabel.setPreferredSize(new Dimension(313, 415));
-        coverLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        add(coverLabel, BorderLayout.WEST);
+        coverLabel.setHorizontalAlignment(SwingConstants.CENTER); // Center align
+        mainPanel.add(coverLabel, BorderLayout.WEST); // **Left side**
 
         coverLabel.addMouseListener(new MouseAdapter() {
             @Override
@@ -146,13 +107,24 @@ public class BookSearchApp extends JFrame {
                 }
             }
         });
-        centerPanel.add(coverLabel);
 
-        add(centerPanel, BorderLayout.WEST);
-        add(searchPanel, BorderLayout.NORTH);
+        // Result Area (center)
+        resultArea = new JEditorPane();
+        resultArea.setEditable(false);
+        resultArea.setContentType("text/html"); // HTML format support
+        JScrollPane scrollPane = new JScrollPane(resultArea);
+        mainPanel.add(scrollPane, BorderLayout.CENTER); // **Center side**
+
+        // Add main panel to content pane
+        add(mainPanel, BorderLayout.CENTER);
+
+        // ScrollPane settings
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setPreferredSize(new Dimension(800, 600)); // Desired size
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
     }
 
-    // 이미지 로딩 및 표시 메서드
+    // Image loading and display method
     private void loadAndDisplayCover(String imageUrl) {
         SwingWorker<ImageIcon, Void> worker = new SwingWorker<>() {
             @Override
@@ -221,22 +193,31 @@ public class BookSearchApp extends JFrame {
     private void displayResults(AladinResponse response) {
         StringBuilder sb = new StringBuilder();
 
-        //html 스타일로 출력 텍스트 포맷
-        sb.append("<html><body style='font-family: Inter;'>");
+        sb.append("<html><body style='font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0;'>");
 
         for (AladinResponse.Item item : response.getItems()) {
+            // 제목 스타일: 크기, 굵기, 여백 등 조정
+            sb.append("<div style='font-size: 28px; font-weight: bold; margin-bottom: 10px;'>")
+                    .append(item.getTitle())
+                    .append("</div>");
 
-            sb.append("<b style='font-size: 25px'>").append(item.getTitle()).append("</b><br>");
-            sb.append("<p style='font-size: 20px'>저자 ").append(item.getAuthor()).append("</p>");
-            sb.append("<p style='font-size: 20px'>출판사 ").append(item.getPublisher()).append("</p><br><br>");
-            sb.append("<p style='font-size: 20px'>").append(item.getDescription()).append("</p><br>");
+            // 저자 및 출판사 정보 스타일: 크기, 여백 추가
+            sb.append("<p style='font-size: 20px; margin: 5px 0;'><b>저자:</b> ").append(item.getAuthor()).append("</p>");
+            sb.append("<p style='font-size: 20px; margin: 5px 0;'><b>출판사:</b> ").append(item.getPublisher()).append("</p>");
+
+            // 설명 텍스트: 크기, 줄 간격, 여백 추가
+            sb.append("<div style='font-size: 18px; margin-top: 10px;'>")
+                    .append(item.getDescription())
+                    .append("</div>");
+
+            sb.append("<hr style='border: 1px solid #ccc; margin: 20px 10px;'>"); // 각 항목 간 구분선
         }
+
         sb.append("</body></html>");
 
         if (!response.getItems().isEmpty()) {
             selectedBook = response.getItems().get(0);
             loadAndDisplayCover(selectedBook.getCover());
-//            new DetailBook(selectedBook, sb.toString()); // html 값 넘겨 상제 정보 보여줌
         } else {
             coverButton.setIcon(null);
             coverButton.setText("표지 없음");
@@ -245,23 +226,22 @@ public class BookSearchApp extends JFrame {
 
         resultArea.setContentType("text/html");
         resultArea.setText(sb.toString());
-
     }
 
     private void openBookDetailsWindow(AladinResponse.Item book) {
         if (book != null) {
-
-            new DetailBook(book); // html 값 넘겨 상세 정보 보여줌
+            new DetailBook(book); // Open detailed view
         }
     }
 
     public BookSearchApp(String searchTerm) {
-        this(); // 기존 생성자 호출
+        this(); // Call existing constructor
         searchField.setText(searchTerm);
-        searchBooks(); // 즉시 검색 수행
+        searchBooks(); // Perform search immediately
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new BookSearchApp().setVisible(true));
     }
 }
+
