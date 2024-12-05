@@ -18,6 +18,8 @@ public class AladinResponse {
         private String title;
         @SerializedName("author")
         private String author;
+        @SerializedName("publisher")
+        private String publisher;
         @SerializedName("description")
         private String description;
         @SerializedName("cover")
@@ -26,6 +28,7 @@ public class AladinResponse {
         // Getters
         public String getTitle() { return title; }
         public String getAuthor() { return author; }
+        public String getPublisher() { return publisher; }
         public String getDescription() { return description; }
         public String getCover() { return cover; }
     }
