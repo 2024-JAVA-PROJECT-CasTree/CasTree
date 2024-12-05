@@ -25,6 +25,14 @@ public class AladinResponse {
         @SerializedName("cover")
         private String cover;
 
+        // 생성자
+        public Item(String title, String author, String publisher, String description) {
+            this.title = title;
+            this.author = author;
+            this.publisher = publisher;
+            this.description = description;
+        }
+
         // Getters
         public String getTitle() { return title; }
         public String getAuthor() { return author; }
