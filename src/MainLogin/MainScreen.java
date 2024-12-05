@@ -9,10 +9,12 @@ public class MainScreen extends JFrame {
     private JPanel topBar;
     private JPanel mainP;
     private Users currentUser;
+    private BGMPlayer bgmPlayer;
 
     public MainScreen() {
-        initUI();
-        updateUIForLoggedOutUser();
+        initUI(); // UI 초기화
+        startBGM(); // BGM 스레드 시작
+        updateUIForLoggedOutUser(); // 로그아웃 상태로 UI 업데이트
     }
 
     private void initUI() {
@@ -35,61 +37,52 @@ public class MainScreen extends JFrame {
         btnPanel.add(logoutBtn);
 
         topBar.add(btnPanel, BorderLayout.EAST);
+        mainP.add(topBar, BorderLayout.NORTH); // 상단 바를 mainP의 북쪽에 추가
 
-        // Removed old search panel
-        JButton searchButton = new JButton("Search");
-        JTextField searchField = new JTextField(20);
+        // 중앙에 로고와 검색 패널 추가
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS)); // 수직 정렬
+        centerPanel.setOpaque(false);
 
-        // Search button listener
-        searchButton.addActionListener(e -> {
-            String searchTerm = searchField.getText();
-            if (!searchTerm.isEmpty()) {
-                // BookSearchApp 생성 후 현재 창 닫음
-                BookSearchApp bookSearchApp = new BookSearchApp(searchTerm);
-                bookSearchApp.setVisible(true);
-                dispose();  // MainScreen 창 닫기
-            } else {
-                JOptionPane.showMessageDialog(this, "Please enter a search term.");
-            }
-        });
-
-        // 검색 패널
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        searchPanel.add(searchField);
-        searchPanel.add(searchButton);
-        topBar.add(searchPanel, BorderLayout.CENTER);
-
-        mainP.add(topBar, BorderLayout.NORTH);
-
-        // 로고 이미지
+        // 로고 이미지 패널 추가
         JPanel imgPanel = createLogoPanel();
-        mainP.add(imgPanel, BorderLayout.CENTER);
+        imgPanel.setAlignmentX(Component.CENTER_ALIGNMENT); // 가운데 정렬
+        imgPanel.setMaximumSize(new Dimension(490, 345)); // 로고 패널 크기 고정
+        centerPanel.add(imgPanel);
 
-        // 이벤트 리스너 추가
-        addEventListeners();
+        // 검색 패널 추가
+        JPanel searchPanel = createSearchPanel();
+        searchPanel.setOpaque(false); // 배경 투명
+        searchPanel.setAlignmentX(Component.CENTER_ALIGNMENT); // 가운데 정렬
+        searchPanel.setMaximumSize(new Dimension(400, 50)); // 검색 패널 크기 고정
+        centerPanel.add(searchPanel);
 
-        setVisible(true);
+        mainP.add(centerPanel, BorderLayout.CENTER); // 중앙 패널을 mainP에 추가
+
+        addEventListeners(); // 이벤트 리스너 추가
+        setVisible(true); // 창 표시
     }
 
     private JPanel createSearchPanel() {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
         JTextField searchField = new JTextField(20);
-        searchField.setFont(new Font("Arial", Font.PLAIN, 16));
+        searchField.setFont(new Font("맑은 고딕", Font.PLAIN, 16));
+
         JButton searchButton = new JButton("Search");
         searchButton.setFont(new Font("Arial", Font.PLAIN, 16));
+
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
 
         searchButton.addActionListener(e -> {
             String searchTerm = searchField.getText();
             if (!searchTerm.isEmpty()) {
-                // BookSearchApp 생성 후 현재 창 닫음
                 BookSearchApp bookSearchApp = new BookSearchApp(searchTerm);
                 bookSearchApp.setVisible(true);
-                dispose();
-//                JOptionPane.showMessageDialog(this, "Searching for: " + searchTerm);
+                dispose(); // 현재 창 닫기
             } else {
-                JOptionPane.showMessageDialog(this, "Please enter a search term.");
+                JOptionPane.showMessageDialog(MainScreen.this, "Please enter a search term.");
             }
         });
 
@@ -98,12 +91,15 @@ public class MainScreen extends JFrame {
 
     private JPanel createLogoPanel() {
         JPanel imgPanel = new JPanel();
+
         ImageIcon logoIcon = new ImageIcon(MainScreen.class.getResource("/img/logo.png"));
         Image scaledImg = logoIcon.getImage().getScaledInstance(490, 245, Image.SCALE_SMOOTH);
-        ImageIcon scaledIcon = new ImageIcon(scaledImg);
-        JLabel logoLabel = new JLabel(scaledIcon);
+
+        JLabel logoLabel = new JLabel(new ImageIcon(scaledImg));
         logoLabel.setBorder(BorderFactory.createEmptyBorder(50, 0, 0, 0));
+
         imgPanel.add(logoLabel);
+
         return imgPanel;
     }
 
@@ -115,31 +111,41 @@ public class MainScreen extends JFrame {
 
         logoutBtn.addActionListener(e -> {
             currentUser = null;
-            updateUIForLoggedOutUser();
+            updateUIForLoggedOutUser(); // 로그아웃 상태로 UI 업데이트
         });
     }
 
     public void updateUIForLoggedInUser(Users user) {
         this.currentUser = user;
-        loginBtn.setVisible(false);
-        logoutBtn.setVisible(true);
-        // 추가적인 로그인 상태 UI 업데이트
+        loginBtn.setVisible(false); // 로그인 버튼 숨김
+        logoutBtn.setVisible(true); // 로그아웃 버튼 표시
     }
 
     private void updateUIForLoggedOutUser() {
-        loginBtn.setVisible(true);
-        logoutBtn.setVisible(false);
-        // 추가적인 로그아웃 상태 UI 업데이트
+        loginBtn.setVisible(true); // 로그인 버튼 표시
+        logoutBtn.setVisible(false); // 로그아웃 버튼 숨김
     }
 
     private JButton createStyledBtn(String text) {
         JButton btn = new JButton(text);
+
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
+
         btn.setFont(new Font("Inter", Font.PLAIN, 17));
+
         btn.setContentAreaFilled(false);
+
         btn.setForeground(Color.black);
+
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
         return btn;
+    }
+
+    private void startBGM() {
+        String bgmPath = "/bgm/Raindrops.wav"; // BGM 파일 경로
+        bgmPlayer = new BGMPlayer(bgmPath, true); // true: 반복 재생
+        bgmPlayer.start(); // 스레드 시작
     }
 }
