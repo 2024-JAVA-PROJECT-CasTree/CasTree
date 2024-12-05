@@ -36,8 +36,27 @@ public class MainScreen extends JFrame {
 
         topBar.add(btnPanel, BorderLayout.EAST);
 
+        // Removed old search panel
+        JButton searchButton = new JButton("Search");
+        JTextField searchField = new JTextField(20);
+
+        // Search button listener
+        searchButton.addActionListener(e -> {
+            String searchTerm = searchField.getText();
+            if (!searchTerm.isEmpty()) {
+                // BookSearchApp 생성 후 현재 창 닫음
+                BookSearchApp bookSearchApp = new BookSearchApp(searchTerm);
+                bookSearchApp.setVisible(true);
+                dispose();  // MainScreen 창 닫기
+            } else {
+                JOptionPane.showMessageDialog(this, "Please enter a search term.");
+            }
+        });
+
         // 검색 패널
-        JPanel searchPanel = createSearchPanel();
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
         topBar.add(searchPanel, BorderLayout.CENTER);
 
         mainP.add(topBar, BorderLayout.NORTH);
@@ -64,7 +83,11 @@ public class MainScreen extends JFrame {
         searchButton.addActionListener(e -> {
             String searchTerm = searchField.getText();
             if (!searchTerm.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Searching for: " + searchTerm);
+                // BookSearchApp 생성 후 현재 창 닫음
+                BookSearchApp bookSearchApp = new BookSearchApp(searchTerm);
+                bookSearchApp.setVisible(true);
+                dispose();
+//                JOptionPane.showMessageDialog(this, "Searching for: " + searchTerm);
             } else {
                 JOptionPane.showMessageDialog(this, "Please enter a search term.");
             }
