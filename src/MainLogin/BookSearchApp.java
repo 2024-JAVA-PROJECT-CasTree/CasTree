@@ -193,39 +193,49 @@ public class BookSearchApp extends JFrame {
     private void displayResults(AladinResponse response) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("<html><body style='font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0;'>");
+        sb.append("<html><body style='font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; align-items: center'>");
 
-        for (AladinResponse.Item item : response.getItems()) {
-            // 제목 스타일: 크기, 굵기, 여백 등 조정
-            sb.append("<div style='font-size: 28px; font-weight: bold; margin-bottom: 10px;'>")
-                    .append(item.getTitle())
-                    .append("</div>");
-
-            // 저자 및 출판사 정보 스타일: 크기, 여백 추가
-            sb.append("<p style='font-size: 20px; margin: 5px 0;'><b>저자:</b> ").append(item.getAuthor()).append("</p>");
-            sb.append("<p style='font-size: 20px; margin: 5px 0;'><b>출판사:</b> ").append(item.getPublisher()).append("</p>");
-
-            // 설명 텍스트: 크기, 줄 간격, 여백 추가
-            sb.append("<div style='font-size: 18px; margin-top: 10px;'>")
-                    .append(item.getDescription())
-                    .append("</div>");
-
-            sb.append("<hr style='border: 1px solid #ccc; margin: 20px 10px;'>"); // 각 항목 간 구분선
-        }
-
-        sb.append("</body></html>");
-
-        if (!response.getItems().isEmpty()) {
-            selectedBook = response.getItems().get(0);
-            loadAndDisplayCover(selectedBook.getCover());
+        if (response.getItems().isEmpty()) {
+            sb.append("<p style='text-align: center;'>검색 결과가 없습니다.</p>");
         } else {
-            coverButton.setIcon(null);
-            coverButton.setText("표지 없음");
-            selectedBook = null;
-        }
+            if (response.getItems().size() == 1) {
+                // 결과가 하나일 경우 전체를 중앙에 배치
+                sb.append("<div style='display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center; margin-top: 200px'>");
+            } else {
+                sb.append("<div style='text-align: left;'>");
+            }
+            for (AladinResponse.Item item : response.getItems()) {
+                // 제목 스타일: 크기, 굵기, 여백 등 조정
+                sb.append("<div style='font-size: 28px; font-weight: bold; margin-bottom: 10px;'>")
+                        .append(item.getTitle())
+                        .append("</div>");
 
-        resultArea.setContentType("text/html");
-        resultArea.setText(sb.toString());
+                // 저자 및 출판사 정보 스타일: 크기, 여백 추가
+                sb.append("<p style='font-size: 20px; margin: 5px 0;'><b>저자:</b> ").append(item.getAuthor()).append("</p>");
+                sb.append("<p style='font-size: 20px; margin: 5px 0;'><b>출판사:</b> ").append(item.getPublisher()).append("</p>");
+
+                // 설명 텍스트: 크기, 줄 간격, 여백 추가
+                sb.append("<div style='font-size: 18px; margin-top: 10px;'>")
+                        .append(item.getDescription())
+                        .append("</div>");
+
+                sb.append("<hr style='border: 1px solid #ccc; margin: 20px 10px;'>"); // 각 항목 간 구분선
+            }
+
+            sb.append("</body></html>");
+
+            if (!response.getItems().isEmpty()) {
+                selectedBook = response.getItems().get(0);
+                loadAndDisplayCover(selectedBook.getCover());
+            } else {
+                coverButton.setIcon(null);
+                coverButton.setText("표지 없음");
+                selectedBook = null;
+            }
+
+            resultArea.setContentType("text/html");
+            resultArea.setText(sb.toString());
+        }
     }
 
     private void openBookDetailsWindow(AladinResponse.Item book) {
