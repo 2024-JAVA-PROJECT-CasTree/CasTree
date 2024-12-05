@@ -6,74 +6,13 @@ import java.util.UUID;
 
 // 데이터 접근 객체(DAO, Data Access Object) 클래스 : 댓글 데이터 처리 역할
 public class CommentDAO {
-    private static final String url = "jdbc:mysql://localhost/comments";
+private static final String url = "jdbc:mysql://localhost/userdb";
     private static final String username = "root";
     private static final String paasword = "adgker!123";
 
-//    // 시간 순 정렬 메서드 추가
-//    public List<String> getCommentsOrderedByTimestamp() {
-//        List<String> comments = new ArrayList<>();
-//        String query = "SELECT content FROM comments ORDER BY created_at ASC";
-//        try (Connection conn = DriverManager.getConnection(url, username, paasword);
-//             PreparedStatement stmt = conn.prepareStatement(query);
-//             ResultSet rs = stmt.executeQuery()) {
-//
-//            while (rs.next()) {
-//                comments.add(rs.getString("content"));
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return comments;
-//    }
-
-    // created_at 기준으로 오름차순 정렬된 댓글 목록 가져오기
-//    public List<String> getCommentsOrderedByCreatedAt() {
-//        List<String> comments = new ArrayList<>();
-////        String query = "SELECT content, created_at FROM comments ORDER BY created_at ASC";
-//        String query = "SELECT content, created_at FROM comments ORDER BY created_at ASC";
-//        try (Connection conn = DriverManager.getConnection(url, username, paasword);
-//             PreparedStatement stmt = conn.prepareStatement(query);
-//             ResultSet rs = stmt.executeQuery()) {
-//
-//            while (rs.next()) {
-//                // 화면 출력 형식: "댓글 내용 (작성 시간)"
-//                String comment = rs.getString("content") + " (" + rs.getTimestamp("created_at") + ")";
-//                comments.add(comment);
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return comments;
-//    }
-
-
-    // 책별 댓글 조회
-    public List<String> getCommentsForBook(String bookId) {
-        List<String> comments = new ArrayList<>();
-        String sql = "SELECT user_id, content, created_at FROM comments";
-
-        try (Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                String userId = rs.getString("user_id");
-                String content = rs.getString("content");
-                String createdAt = rs.getString("created_at");
-                comments.add(userId + ": " + content + " (" + createdAt + ")");
-            }
-        } catch (SQLException e) {
-            System.out.println("댓글 조회 실패!");
-            e.printStackTrace();
-        }
-
-        return comments;
-    }
-
     public List<String> getCommentsOrderedByCreatedAt() {
         List<String> comments = new ArrayList<>();
-        String query = "SELECT content, created_at FROM comments ORDER BY created_at ASC";
+        String query = "SELECT user_id, content, created_at FROM comments ORDER BY created_at ASC";
 
         try (Connection conn = DriverManager.getConnection(url, username, paasword);
              PreparedStatement stmt = conn.prepareStatement(query);
@@ -81,9 +20,10 @@ public class CommentDAO {
 
             while (rs.next()) {
                 // 댓글 내용과 작성 시간을 ResultSet에서 가져와 리스트에 추가
+                String userId = rs.getString("user_id");
                 String content = rs.getString("content");
                 Timestamp createdAt = rs.getTimestamp("created_at");
-                comments.add(content + " (" + createdAt.toString() + ")");
+                comments.add(userId + ": " + content + " (" + createdAt.toString() + ")");
             }
 
         } catch (SQLException e) {

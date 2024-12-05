@@ -6,9 +6,6 @@ public class Users {
     private String name;
 
     public Users(String id, String pw, String name){
-//        setId(id);
-//        setPw(pw);
-//        setName(name);
         this.id = id;
         this.pw = pw;
         this.name = name;
@@ -28,25 +25,25 @@ public class Users {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+//    public void setId(String id) {
+//        this.id = id;
+//    }
 
     public String getPw() {
         return pw;
     }
 
-    public void setPw(String pw) {
-        this.pw = pw;
-    }
+//    public void setPw(String pw) {
+//        this.pw = pw;
+//    }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+//    public void setName(String name) {
+//        this.name = name;
+//    }
 
     @Override
     public boolean equals(Object obj) {

@@ -5,8 +5,10 @@ import java.awt.*;
 import java.util.List;
 
 public class CommentScreen extends JFrame {
+    private Users loggedInUser;
 
     public CommentScreen(Users loggedInUser) {
+        this.loggedInUser = loggedInUser;
 
         setTitle("댓글 작성 화면");
         setSize(600, 400);
@@ -65,13 +67,35 @@ public class CommentScreen extends JFrame {
 
         // 댓글 목록 가져오기
         CommentDAO commentDAO = new CommentDAO();
-        List<String> comments = commentDAO.getCommentsForBook(""); // 책 ID 없이 모든 댓글 가져오기
+        List<String> com = commentDAO.getCommentsOrderedByCreatedAt();
+
+        // 현재 로그인한 사용자 ID 가져오기
+        String loggedInUserId = loggedInUser.getId();
 
         // 댓글을 하나씩 JLabel로 추가
-        for (String comment : comments) {
-            JLabel commentLabel = new JLabel(comment);
+//        for (String comment : com) {
+//            JLabel commentLabel = new JLabel(comment);
+//            commentLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+//            commentListPanel.add(commentLabel);
+//        }
+
+        for (String comment : com) {
+            // 댓글 내용과 작성자 ID 분리
+            String[] parts = comment.split(": ", 2); // "userId: content" 형식으로 가정
+            String userId = parts[0]; // 작성자 ID
+            String content = parts[1]; // 댓글 내용
+
+            // 각 댓글을 담을 패널 생성
+            JPanel commentPanel = new JPanel(new FlowLayout(userId.equals(loggedInUserId) ? FlowLayout.RIGHT : FlowLayout.LEFT));
+
+            JLabel commentLabel = new JLabel(content);
             commentLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-            commentListPanel.add(commentLabel);
+
+            // 패널에 댓글 추가
+            commentPanel.add(commentLabel);
+
+            // 전체 댓글 목록 패널에 추가
+            commentListPanel.add(commentPanel);
         }
 
         // 패널 갱신
