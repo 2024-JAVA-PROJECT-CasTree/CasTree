@@ -8,24 +8,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class JoinForm  extends JDialog {
+public class JoinForm extends JDialog {
     private LoginForm owner;
     private UsersDS users;
 
-    //입력하라는 안내 레이블
-    private JLabel lblName; // 사용자 이름
-    private JLabel lblTitle;
-    private JLabel lblId;  // 사용자 id
-    private JLabel lblPw;  // 비번 입력
-    private JLabel lblRePw; // 비번 확인
-
-    // 입력하는 텍스트 필드
-    private JTextField tfName; //사용자 이름
-    private JTextField tfId;//사용자 id
-    private JPasswordField tfPw; //비번 입력
-    private JPasswordField tfRePw; // 비번확인
-    private JButton btnJoin; //회원가입 버튼
-    private JButton btnCancel; //작업 취소 또는 이전 화면으로 돌아가기 버튼
+    private JLabel lblName, lblTitle, lblId, lblPw, lblRePw;
+    private JTextField tfName, tfId;
+    private JPasswordField tfPw, tfRePw;
+    private JButton btnJoin, btnCancel;
 
     public JoinForm(LoginForm owner) {
         super(owner, "Join", true);
@@ -39,7 +29,6 @@ public class JoinForm  extends JDialog {
     }
 
     private void init() {
-        //크기 고정
         int tfSize = 10;
         Dimension lblSize = new Dimension(80, 35);
         Dimension btnSize = new Dimension(100, 25);
@@ -55,7 +44,6 @@ public class JoinForm  extends JDialog {
         lblRePw = new JLabel("비밀번호 확인", JLabel.LEFT);
         lblRePw.setPreferredSize(lblSize);
 
-
         tfId = new JTextField(tfSize);
         tfPw = new JPasswordField(tfSize);
         tfRePw = new JPasswordField(tfSize);
@@ -68,50 +56,32 @@ public class JoinForm  extends JDialog {
     }
 
     private void setDisplay() {
-        // FlowLayout 왼쪽 정렬
-        FlowLayout flowLeft = new FlowLayout(FlowLayout.LEFT);
-
         JPanel pnlMain = new JPanel(new BorderLayout());
+        JPanel pnlCenter = new JPanel(new GridLayout(4, 1, 5, 5));
+        JPanel pnlSouth = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
-        JPanel pnlMNorth = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        pnlMNorth.add(lblTitle);
+        pnlCenter.add(createInputPanel(lblId, tfId));
+        pnlCenter.add(createInputPanel(lblName, tfName));
+        pnlCenter.add(createInputPanel(lblPw, tfPw));
+        pnlCenter.add(createInputPanel(lblRePw, tfRePw));
 
-        JPanel pnlMSouth = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        pnlMSouth.add(btnJoin);
-        pnlMSouth.add(btnCancel);
+        pnlSouth.add(btnJoin);
+        pnlSouth.add(btnCancel);
 
-        JPanel pnlMCenter = new JPanel(new GridLayout(0, 1));
-        JPanel pnlId = new JPanel(flowLeft);
-        pnlId.add(lblId);
-        pnlId.add(tfId);
+        pnlMain.add(lblTitle, BorderLayout.NORTH);
+        pnlMain.add(pnlCenter, BorderLayout.CENTER);
+        pnlMain.add(pnlSouth, BorderLayout.SOUTH);
 
-        JPanel pnlPw = new JPanel(flowLeft);
-        pnlPw.add(lblPw);
-        pnlPw.add(tfPw);
+        pnlMain.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        JPanel pnlRePw = new JPanel(flowLeft);
-        pnlRePw.add(lblRePw);
-        pnlRePw.add(tfRePw);
+        setContentPane(pnlMain);
+    }
 
-        JPanel pnlName = new JPanel(flowLeft);
-        pnlName.add(lblName);
-        pnlName.add(tfName);
-
-        pnlMCenter.add(pnlId);
-        pnlMCenter.add(pnlName);
-        pnlMCenter.add(pnlPw);
-        pnlMCenter.add(pnlRePw);
-
-
-        pnlMain.add(pnlMNorth, BorderLayout.NORTH);
-        pnlMain.add(pnlMCenter, BorderLayout.CENTER);
-        pnlMain.add(pnlMSouth, BorderLayout.SOUTH);
-
-        pnlMain.setBorder(new EmptyBorder(0, 20, 0, 20));
-        pnlMSouth.setBorder(new EmptyBorder(0, 0, 10, 0));
-
-        add(pnlMain, BorderLayout.NORTH);
-        add(pnlMSouth, BorderLayout.SOUTH);
+    private JPanel createInputPanel(JLabel label, JComponent field) {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel.add(label);
+        panel.add(field);
+        return panel;
     }
 
     private void addListeners() {
@@ -122,99 +92,49 @@ public class JoinForm  extends JDialog {
                 owner.setVisible(true);
             }
         });
-        btnCancel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                if(isBlank()){
-                    JOptionPane.showMessageDialog(JoinForm.this, "모든 정보를 입력해주세요");
-                }else{
-                    String id = tfId.getText();
-                    String password = String.valueOf(tfPw.getPassword());
-                    String retryPassword = String.valueOf(tfRePw.getPassword());
-                    String name = tfName.getText();
 
-                    if(users.idOverlap(id)){
-                        JOptionPane.showMessageDialog(JoinForm.this, "이미 존재하는 아이디입니다.");
-                        tfId.requestFocus();
-                    }else if(!password.equals(retryPassword)){
-                        JOptionPane.showMessageDialog(JoinForm.this, "비밀번호가 일치하지 않습니다.");
-                        tfPw.requestFocus();
-                    }else{
-                        Users newUser = new Users(id, password, name);
-                        users.addUsers(newUser);
-                        JOptionPane.showMessageDialog(JoinForm.this, "회원가입을 완료했습니다.");
-                        dispose();
-                        owner.setVisible(true);
-                    }
-                }
-            }
+        btnCancel.addActionListener(e -> {
+            dispose();
+            owner.setVisible(true);
         });
 
-        btnJoin.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                //정보가 하나라도 비어있으면
-                if (isBlank()) {
-                    JOptionPane.showMessageDialog(
-                            JoinForm.this,
-                            "모든 정보를 입력해주세요"
-                    );
-                    //모두 입력했을 때
-                } else {
-                    //Id 중복일 때
-                    if (users.idOverlap(tfId.getText())) {
-                        JOptionPane.showMessageDialog(
-                                JoinForm.this,
-                                "이미 존재하는 Id입니다."
-                        );
-                        tfId.requestFocus();
-
-                        //Pw와 RePw가 일치하지 않았을 때
-                    } else if (!String.valueOf(tfPw.getPassword()).equals(String.valueOf(tfRePw.getPassword()))) {
-                        JOptionPane.showMessageDialog(
-                                JoinForm.this,
-                                "Password와 Retry가 일치하지 않습니다."
-                        );
-                        tfPw.requestFocus();
-                    } else {
-                        users.addUsers(new Users(
-                                tfId.getText(),
-                                String.valueOf(tfPw.getPassword()),
-                                tfName.getText()
-                        ));
-                        JOptionPane.showMessageDialog(
-                                JoinForm.this,
-                                "회원가입을 완료했습니다."
-                        );
-                        dispose();
-                        owner.setVisible(true);
-                    }//else
-                }//else
-            }//actionPerformed(ActionEvent ae)
-        });  // btnJoin.addActionListener(new ActionListener()
-    } //private void addListeners()
-
-    public boolean isBlank(){
-        boolean result = false;
-        if(tfId.getText().isEmpty()){
-            tfId.requestFocus();
-            return true;
-        }
-        if(String.valueOf(tfPw.getPassword()).isEmpty()){
-            tfPw.requestFocus();
-            return true;
-        }
-        if(String.valueOf(tfRePw.getPassword()).isEmpty()){
-            tfRePw.requestFocus();
-            return true;
-        }
-        if(tfName.getText().isEmpty()) {
-            tfName.requestFocus();
-            return true;
-        }
-        return result;
+        btnJoin.addActionListener(e -> performJoin());
     }
-    private  void showFrame(){
+
+    private void performJoin() {
+        if (isBlank()) {
+            JOptionPane.showMessageDialog(this, "모든 정보를 입력해주세요");
+            return;
+        }
+
+        String id = tfId.getText();
+        String password = new String(tfPw.getPassword());
+        String retryPassword = new String(tfRePw.getPassword());
+        String name = tfName.getText();
+
+        if (users.idOverlap(id)) {
+            JOptionPane.showMessageDialog(this, "이미 존재하는 아이디입니다.");
+            tfId.requestFocus();
+        } else if (!password.equals(retryPassword)) {
+            JOptionPane.showMessageDialog(this, "비밀번호가 일치하지 않습니다.");
+            tfPw.requestFocus();
+        } else {
+            Users newUser = new Users(id, password, name);
+            users.addUsers(newUser);
+            JOptionPane.showMessageDialog(this, "회원가입을 완료했습니다.");
+            dispose();
+            owner.setVisible(true);
+        }
+    }
+
+    private boolean isBlank() {
+        return tfId.getText().isEmpty() ||
+                new String(tfPw.getPassword()).isEmpty() ||
+                new String(tfRePw.getPassword()).isEmpty() ||
+                tfName.getText().isEmpty();
+    }
+
+    private void showFrame() {
         pack();
         setLocationRelativeTo(owner);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
